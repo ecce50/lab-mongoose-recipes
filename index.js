@@ -15,42 +15,34 @@ mongoose
     // Before adding any recipes to the database, let's remove all existing ones
     return Recipe.deleteMany();
   })
-  // // Iteration 2
-  //   .then(() => {
-  //     const newRecipe = Recipe.create(data[0]).then(() => {
-  //       console.log(newRecipe);
-  //     });
-  //   })
 
-  // Iteration 3
+  // Iteration 2 - Create a recipe
   .then(() => {
-    Recipe.insertMany(data);
-    data.forEach((data) => {
-      console.log(data.title);
+    const recipe = { title: "Eggs Benedict", cuisine: "Italian" };
+    Recipe.create(recipe);
+  })
+
+  // Iteration 3 - Insert multiple recipes
+  .then(() => {
+    Recipe.insertMany(data).then(() => {
+      Recipe.findOneAndUpdate(
+        { title: "Rigatoni alla Genovese" },
+        { duration: 100 },
+        { new: true }
+      )
+        .then((updatedRecipe) => {
+          console.log("aaa", updatedRecipe);
+        })
+        .then(() => {
+          console.log("You successfully updated the recipe");
+          Recipe.deleteOne({ title: "Carrot Cake" }).then(() => {
+            console.log("You successfully removed the recipe");
+            mongoose.connection.close().then(() => {
+              console.log("You disconnected from the database");
+            });
+          });
+        });
     });
-  })
-
-  .then(() => {
-    // Iteration 4 - Update recipe
-    const filter = { title: "Rigatoni alla Genovese" };
-    const update = { duration: 100 };
-    return Recipe.findOneAndUpdate(filter, update);
-  })
-  // Iteration 5
-  .then((updatedRecipe) => {
-    console.log("Recipe updated!");
-  })
-
-  .then(() => {
-    return Recipe.deleteOne({ title: "Carrot Cake" });
-  })
-  .then(() => {
-    console.log("Recipe deleted!");
-    // Iteration 6
-    return mongoose.connection.close();
-  })
-  .then(() => {
-    console.log("Database connection closed!");
   })
   .catch((error) => {
     console.error("Error connecting to the database", error);
